@@ -82,9 +82,6 @@ def fetch_course(**params):
             course.set('user',user)
             course.set('course_no',class_array)
             with open(f'./calendars/{user.get("objectId")}.ics', 'rb') as f:
-                # icsContent = f.read()
-                # fileIO = StringIO(icsContent)
-                # file = leancloud.File(f'{user.get("objectId")}.ics', fileIO, 'text/calendar')
                 file = leancloud.File(f'{user.get("objectId")}.ics', f)
                 file.save()
                 course.set('course_ics', file)
@@ -93,9 +90,6 @@ def fetch_course(**params):
             course = course_list[0]
             course.set('course_no',class_array)
             with open(f'./calendars/{user.get("objectId")}.ics', 'rb') as f:
-                # icsContent = f.read()
-                # fileIO = StringIO(icsContent)
-                # file = leancloud.File(f'{user.get("objectId")}.ics', fileIO, 'text/calendar')
                 file = leancloud.File(f'{user.get("objectId")}.ics', f)
                 file.save()
                 course.set('course_ics', file)
@@ -105,3 +99,76 @@ def fetch_course(**params):
             "courseId": course.get('objectId')
         }
 
+
+
+@engine.define
+def calculateCollision(colId):
+    print(colId)
+    query = leancloud.Query('UCAS_Collision')
+    query.equal_to('objectId',colId)
+    result = query.find()[0]
+    if result.get('shouldUpdate') == False:
+        return result.get('collisionResult')
+    joinedUsers = result.get('joinedUsers')
+    week = result.get("week")
+    resultTable = [
+        [[], [], [], [], [], [], [], [], [], [], [], [], ],
+        [[], [], [], [], [], [], [], [], [], [], [], [], ],
+        [[], [], [], [], [], [], [], [], [], [], [], [], ],
+        [[], [], [], [], [], [], [], [], [], [], [], [], ],
+        [[], [], [], [], [], [], [], [], [], [], [], [], ],
+        [[], [], [], [], [], [], [], [], [], [], [], [], ],
+        [[], [], [], [], [], [], [], [], [], [], [], [], ],
+    ]
+    print(joinedUsers)
+    for user in joinedUsers:
+        print(user)
+        userObj = leancloud.Object.extend("_User").create_without_data(user)
+        query = None
+        # find user name
+        query = leancloud.Query('UCAS_UserCredential')
+        query.equal_to('user', userObj)
+        userRes = query.find()
+        if userRes == None:
+            continue
+        userName = userRes[0].get('realname')
+
+        query = None
+        query = leancloud.Query('UCAS_CourseCalendar')
+        query.equal_to('user', userObj)
+        courseRes = query.find()[0]
+        print("++++++++")
+        print(courseRes)
+        if courseRes == None:
+            continue
+        course_no = courseRes.get('course_no')
+        for course in course_no:
+            if course['week'] == week:
+                resultTable[course['day']-1][course['lesson_n']-1].append({
+                    "name": userName,
+                })
+
+    result.set('collisionResult', {'data':resultTable})
+    result.set('shouldUpdate', False)
+    result.save()
+    return {"data":resultTable}
+
+
+@engine.define
+def acceptInvitation(colId):
+    user = engine.current.user
+    # 就是把user加到colId的那个
+    query = leancloud.Query('UCAS_Collision')
+    query.equal_to('objectId', colId)
+    result = query.find()[0]
+    joinedUsers = result.get('joinedUsers')
+    if user.get('objectId') in joinedUsers:
+        pass
+    else:
+        joinedUsers.append(user.get('objectId'))
+        result.set('joinedUsers', joinedUsers)
+        result.set('shouldUpdate', True)
+        result.save()
+    return {
+        "code": 200,
+    }

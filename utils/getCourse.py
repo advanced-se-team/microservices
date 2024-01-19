@@ -19,7 +19,7 @@ def doCourse(jsessionid, filename):
   print(jsessionid)
   firstdayofterm = "2023.9.4" #input("学期第一天的年月日，用'.'隔开，如2022.8.22：")
 
-  host = 'https://jwxkts2.ucas.ac.cn'
+  host = 'https://jwxk.ucas.ac.cn'
   url = host + '/courseManage/main'
 
   s = r.Session()

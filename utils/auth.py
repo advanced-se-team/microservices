@@ -65,7 +65,7 @@ class Login:
 
 
 class Course:
-    base = 'https://jwxkts2.ucas.ac.cn'
+    base = 'https://jwxk.ucas.ac.cn'
     identify = base + '/login?Identity='
     selected = base + '/courseManage/selectedCourse'
     selection = base + '/courseManage/main'

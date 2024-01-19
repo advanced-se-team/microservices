@@ -65,9 +65,9 @@ class Calendar:
             self._events.append(self._toEvent(id, name, start, end, place, teacher))
             
             # 以课节数的形式存储信息
-            st_number = numbers[0]
-            ed_number = numbers[-1]
-            while ed_number - st_number >= 1:
+            st_number = numbers[0] #7
+            ed_number = numbers[-1] #8
+            while ed_number - st_number >= 0:
                 self.events_number_formatted.append((id, name, st_number, place, teacher, w, day))
                 st_number += 1
     
