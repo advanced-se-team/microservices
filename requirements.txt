@@ -11,3 +11,8 @@ prettytable~=3.9.0
 beautifulsoup4~=4.12.2
 gevent~=22.10.2
 werkzeug~=1.0.1
+convertapi==1.7.0
+python-docx==1.1.0
+PyMuPDF==1.23.16
+PyMuPDFb==1.23.9
+
